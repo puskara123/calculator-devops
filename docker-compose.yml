@@ -1,3 +1,5 @@
+name: calculator-devops
+
 services:
   calculator:
     image: ${DOCKER_IMAGE:-puskara/calculator-devops}:${IMAGE_TAG:-latest}
