@@ -51,3 +51,8 @@ target/
 .env
 *.pem
 credentials*
+### Secrets & local config ###
+.env
+*.pem
+credentials*
+*.log
