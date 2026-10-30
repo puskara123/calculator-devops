@@ -86,6 +86,26 @@ push to `main`, with SCM polling as a fallback.
 
 Email notifications are sent on success and failure.
 
+```mermaid
+flowchart LR
+    Dev[Developer] -->|git push| GH[GitHub]
+    GH -->|webhook via ngrok| JK[Jenkins]
+
+    subgraph PIPE[Jenkins pipeline]
+        C[Checkout] --> B[Build] --> T[Test] --> DB[Docker Build] --> P[Push] --> D[Deploy] --> V[Verify Health]
+    end
+
+    JK --> C
+    P -->|image:BUILD_NUMBER + latest| DH[(Docker Hub)]
+    D -->|docker compose up -d| NG
+
+    subgraph STACK[Docker Compose stack]
+        NG[Nginx proxy :8085] --> API[calculator-api :8080]
+    end
+
+    V -->|success / failure| EM[Email notification]
+```
+
 ### Jenkins prerequisites
 
 - Plugins: Docker Pipeline, Email Extension, GitHub Integration, Pipeline Utility Steps
