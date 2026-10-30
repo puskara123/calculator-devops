@@ -42,5 +42,32 @@ pipeline {
                 }
             }
         }
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                    docker build \
+                      -t $DOCKER_IMAGE:$IMAGE_TAG \
+                      -t $DOCKER_IMAGE:latest .
+                    docker images | grep calculator-devops
+                '''
+            }
+        }
+
+        stage('Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: "${REGISTRY_CRED}",
+                    usernameVariable: 'DH_USER',
+                    passwordVariable: 'DH_PASS')]) {
+                    sh '''
+                        echo "$DH_PASS" | docker login -u "$DH_USER" --password-stdin
+                        docker push $DOCKER_IMAGE:$IMAGE_TAG
+                        docker push $DOCKER_IMAGE:latest
+                        docker logout
+                    '''
+                }
+            }
+        }
     }
 }
