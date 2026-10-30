@@ -1,6 +1,6 @@
 services:
   calculator:
-    image: ${DOCKER_IMAGE:-DOCKERHUB_USER/calculator-devops}:${IMAGE_TAG:-latest}
+    image: ${DOCKER_IMAGE:-puskara/calculator-devops}:${IMAGE_TAG:-latest}
     container_name: calculator-api
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
