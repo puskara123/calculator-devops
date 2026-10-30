@@ -69,5 +69,69 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    export DOCKER_IMAGE=$DOCKER_IMAGE
+                    export IMAGE_TAG=$IMAGE_TAG
+                    docker compose up -d --remove-orphans
+                    docker compose ps
+                '''
+            }
+        }
+
+        stage('Verify Health') {
+            steps {
+                sh '''
+                    for i in $(seq 1 20); do
+                        if curl -fs http://localhost:8085/actuator/health | grep -q '"status":"UP"'; then
+                            echo "Deployment healthy after ${i} attempt(s)"
+                            curl -s "http://localhost:8085/api/v1/add?a=2&b=3"
+                            exit 0
+                        fi
+                        echo "Waiting for service... (${i}/20)"
+                        sleep 5
+                    done
+                    echo "Health check FAILED"
+                    docker compose logs --tail=60
+                    exit 1
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            emailext(
+                to: "${NOTIFY_EMAIL}",
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """Build succeeded.
+
+Job:     ${env.JOB_NAME}
+Build:   #${env.BUILD_NUMBER}
+Image:   ${DOCKER_IMAGE}:${IMAGE_TAG}
+URL:     ${env.BUILD_URL}
+
+The stack is deployed and healthy at http://localhost:8085
+"""
+            )
+        }
+        failure {
+            emailext(
+                to: "${NOTIFY_EMAIL}",
+                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """Build failed.
+
+Job:    ${env.JOB_NAME}
+Build:  #${env.BUILD_NUMBER}
+URL:    ${env.BUILD_URL}
+Console: ${env.BUILD_URL}console
+"""
+            )
+        }
+        always {
+            sh 'docker image prune -f || true'
+        }
     }
 }
