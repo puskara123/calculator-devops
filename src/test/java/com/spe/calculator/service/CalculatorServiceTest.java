@@ -35,7 +35,7 @@ class CalculatorServiceTest {
     @Test
     @DisplayName("divide returns the quotient of two numbers")
     void testDivide() {
-        assertEquals(2.2, service.divide(6, 3), DELTA);
+        assertEquals(2.0, service.divide(6, 3), DELTA);
         assertEquals(0.5, service.divide(1, 2), DELTA);
     }
 
