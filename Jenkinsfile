@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE  = 'DOCKERHUB_USER/calculator-devops'
+        DOCKER_IMAGE  = 'puskara/calculator-devops'
         IMAGE_TAG     = "${env.BUILD_NUMBER}"
         REGISTRY_CRED = 'dockerhub-creds'
-        NOTIFY_EMAIL  = 'you@iiitb.ac.in'
+        NOTIFY_EMAIL  = 'pushkar.kulkarni.2005@gmail.com'
     }
 
     options {
